@@ -2,14 +2,15 @@ import queue
 import sounddevice as sd
 import soundfile as sf
 
-q = queue.Queue()
 SAMPLE_RATE = 44100
+# Recorded data is pushed to this, then popped for writing to the file.
+recorded_queue = queue.Queue()
 
-def callback(indata, frames, time, status):
+def callback(in_data, frames, time, status):
     if status:
         print('STATUS', status)
 
-    q.put(indata.copy())
+    recorded_queue.put(in_data.copy())
 
 
 def record(file_name):
@@ -17,17 +18,14 @@ def record(file_name):
     Records audio to the specified file.
     """
 
-    global should_record
-    should_record = True
-
     print('Starting Record')
 
-    with sf.SoundFile(file_name, mode='w', samplerate=44100, channels=2) as file:
-        with sd.InputStream(samplerate=44100, channels=2, callback=callback):
+    with sf.SoundFile(file_name, mode='w', samplerate=SAMPLE_RATE, channels=2) as file:
+        with sd.InputStream(samplerate=SAMPLE_RATE, channels=2, callback=callback):
             input('Press to stop')
 
-            while not q.empty():
-                file.write(q.get())
+            while not recorded_queue.empty():
+                file.write(recorded_queue.get())
 
             print('Written file')
 
