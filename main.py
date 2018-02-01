@@ -81,7 +81,7 @@ import soundfile as sf
 
 
 q = queue.Queue()
-
+should_record = False
 
 def callback(indata, frames, time, status):
     if status:
@@ -90,12 +90,24 @@ def callback(indata, frames, time, status):
     q.put(indata.copy())
 
 
-def record(filename):
-    samplerate = 44100
+def record(file_name):
+    """
+    Records audio to the specified file.
+    """
+    sample_rate = 44100
 
-    with sf.SoundFile(filename, mode='w', samplerate=samplerate, channels=2) as file:
-        with sd.InputStream(samplerate=samplerate, channels=2, callback=callback):
-            while True:
+    global should_record
+    should_record = True
+
+    print('Starting Record')
+
+    with sf.SoundFile(file_name, mode='w', samplerate=sample_rate, channels=2) as file:
+        with sd.InputStream(samplerate=sample_rate, channels=2, callback=callback):
+            input('Press to stop')
+
+            while not q.empty():
                 file.write(q.get())
+
+            print('Written file')
 
 record('output.wav')
