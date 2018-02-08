@@ -20,8 +20,8 @@ def record(file_name):
 
     print('Starting Record')
 
-    with sf.SoundFile(file_name, mode='w', samplerate=SAMPLE_RATE, channels=2) as file:
-        with sd.InputStream(samplerate=SAMPLE_RATE, channels=2, callback=callback):
+    with sf.SoundFile(file_name, mode='w', samplerate=SAMPLE_RATE, channels=1) as file:
+        with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, callback=callback):
             input('Press to stop')
 
             while not recorded_queue.empty():
